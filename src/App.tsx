@@ -3,14 +3,15 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import "./App.css";
 import Home from "./components/Home";
 import { NavBar } from "./components/NavBar";
+import { Animals } from "./containers/Animals";
 
 function App() {
   return (
     <div className="App">
-      <NavBar />
-      <h1>App Component - Animal Shelter Front End</h1>
       <Router>
-        <Route path="/" component={Home} />
+        <NavBar />
+        <Route exact path="/" component={Home} />
+        <Route exact path="/animals" component={Animals} />
       </Router>
     </div>
   );

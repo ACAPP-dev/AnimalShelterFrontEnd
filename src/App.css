@@ -13,6 +13,25 @@
   }
 }
 
+.navbar a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+a.active {
+  color: orange;
+}
+
+a.active:hover {
+  color: black;
+}
+
+.active h6 {
+  display: inline-block;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
