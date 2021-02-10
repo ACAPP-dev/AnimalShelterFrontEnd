@@ -13,6 +13,10 @@
   }
 }
 
+.form {
+  border: 1px solid black;
+}
+
 .navbar a {
   color: white;
   text-decoration: none;
