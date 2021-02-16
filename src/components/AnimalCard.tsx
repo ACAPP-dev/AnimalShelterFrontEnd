@@ -68,7 +68,7 @@ export const AnimalCard = ({ animal }: AnimalsType) => {
           .get("https://dog.ceo/api/breeds/image/random")
           .then((response) => setImage(response.data.message));
       });
-  }, []);
+  }, [animal.breed]);
 
   return (
     <div>

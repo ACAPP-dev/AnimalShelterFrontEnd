@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     formControl: {
       margin: theme.spacing(1),
-      minWidth: 120,
+      minWidth: 150,
       textAlign: "center",
       marginLeft: 50,
     },
@@ -57,14 +57,27 @@ const useStyles = makeStyles((theme: Theme) =>
 export const Animals = () => {
   const [animals, setAnimals] = useState<typeof animal>(Object);
   const [term, setTerm] = useState<string>("");
-  const [search, setSearch] = useState<string>("");
-  const [selection, setSelection] = useState<string>("");
+  const [narrowSpecies, setNarrowSpecies] = useState<string>("any");
+  const [narrowBreed, setNarrowBreed] = useState<string>("any");
+  const [narrowGender, setNarrowGender] = useState<string>("any");
+  const [breedList, setBreedList] = useState<string[]>([]);
 
   const classes = useStyles();
 
-  const handleSearch = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setSearch(event.target.value as string);
-    console.log(search);
+  const handleNarrow = (event: React.ChangeEvent<{ value: unknown }>) => {
+    // setSearch(event.target.value as string);
+    console.log(event.target);
+    switch ((event.target as any).name) {
+      case "species":
+        setNarrowSpecies((event.target as any).value);
+        break;
+      case "breed":
+        setNarrowBreed((event.target as any).value);
+        break;
+      case "gender":
+        setNarrowGender((event.target as any).value);
+        break;
+    }
   };
 
   const handleSelection = (e: any) => {};
@@ -76,11 +89,36 @@ export const Animals = () => {
         console.log(response.data);
         setAnimals([...response.data]);
       });
+
+    axios
+      .get("http://3.128.180.190:8080/animalshelter/breeds")
+      .then((response) => {
+        setBreedList([...response.data]);
+      });
   }, [term]);
 
   const getAnimalCards = () => {
+    let refinedAnimals: typeof animal = animals;
+
     if (animals.length > 0) {
-      return animals.map((animal) => {
+      if (narrowSpecies !== "any") {
+        refinedAnimals = [
+          ...refinedAnimals.filter(
+            (animal) => animal.species === narrowSpecies
+          ),
+        ];
+      }
+      if (narrowBreed !== "any") {
+        refinedAnimals = [
+          ...refinedAnimals.filter((animal) => animal.breed === narrowBreed),
+        ];
+      }
+      if (narrowGender !== "any") {
+        refinedAnimals = [
+          ...refinedAnimals.filter((animal) => animal.sex === narrowGender),
+        ];
+      }
+      return refinedAnimals.map((animal) => {
         return <AnimalCard animal={animal} />;
       });
     } else {
@@ -88,20 +126,63 @@ export const Animals = () => {
     }
   };
 
+  const getBreeds = () => {
+    if (breedList.length > 0) {
+      return breedList.map((breed) => {
+        return (
+          <MenuItem value={breed}>
+            {breed.charAt(0).toUpperCase() + breed.slice(1)}
+          </MenuItem>
+        );
+      });
+    }
+  };
+
   return (
     <div>
       <h1 className={classes.heading}>Available for Adoption</h1>
       <div className="form">
-        <form>
-          <FormControl className={classes.formControl}>
-            <InputLabel>Narrow Search</InputLabel>
-            <Select onChange={handleSearch} value={search}>
-              <MenuItem value={1}>Species</MenuItem>
-              <MenuItem value={2}>Breed</MenuItem>
-              <MenuItem value={3}>Gender</MenuItem>
-            </Select>
-          </FormControl>
-        </form>
+        <FormControl className={classes.formControl}>
+          <InputLabel id="narrow-species">Narrow Type</InputLabel>
+          <Select
+            labelId="narrow-species"
+            onChange={handleNarrow}
+            value={narrowSpecies}
+            name="species"
+            autoWidth
+          >
+            <MenuItem value={"any"}>Any</MenuItem>
+            <MenuItem value={"dog"}>Dog</MenuItem>
+            <MenuItem value={"cat"}>Cat</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl className={classes.formControl}>
+          <InputLabel id="narrow-breed">Narrow Breed</InputLabel>
+          <Select
+            labelId="narrow-breed"
+            onChange={handleNarrow}
+            value={narrowBreed}
+            name="breed"
+            autoWidth
+          >
+            <MenuItem value={"any"}>Any</MenuItem>
+            {getBreeds()}
+          </Select>
+        </FormControl>
+        <FormControl className={classes.formControl}>
+          <InputLabel id="narrow-gender">Narrow Gender</InputLabel>
+          <Select
+            labelId="narrow-gender"
+            onChange={handleNarrow}
+            value={narrowGender}
+            name="gender"
+            autoWidth
+          >
+            <MenuItem value={"any"}>Any</MenuItem>
+            <MenuItem value={"male"}>Male</MenuItem>
+            <MenuItem value={"female"}>Female</MenuItem>
+          </Select>
+        </FormControl>
       </div>
       <div className={classes.root}>
         <Grid className={classes.grid} container spacing={3}>
